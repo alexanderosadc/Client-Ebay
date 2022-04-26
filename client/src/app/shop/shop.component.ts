@@ -3,6 +3,7 @@ import { ICategory } from '../shared/models/categories';
 import { IDiscount } from '../shared/models/discount';
 import { IPaginationInfo } from '../shared/models/pagination-info';
 import { IProduct } from '../shared/models/product';
+import { ShopParams } from '../shared/models/shopParams';
 
 import { ShopService } from './shop.service';
 
@@ -16,9 +17,14 @@ export class ShopComponent implements OnInit {
   paginationInfo: IPaginationInfo;
   categories : ICategory[];
   discounts : IDiscount[];
+  shopParams : ShopParams = new ShopParams();
+  totalCount : number;
 
-  categoryIdSelected : number = 0;
-  discountIdSelected : number = 0;
+  sortOptions = [
+    {name: 'Alphabetical', value: 'name'},
+    {name: 'Price: Low to High', value: 'priceAsc'},
+    {name: 'Price: High to Low', value: 'priceDesc'}
+  ];
 
   constructor(private shopService: ShopService) { }
 
@@ -30,9 +36,13 @@ export class ShopComponent implements OnInit {
 
   getProducts() {
     this.shopService
-    .getProducts(this.categoryIdSelected, this.discountIdSelected)
+    .getProducts(this.shopParams)
     .subscribe(response =>{
       this.products = response.products;
+      this.shopParams.pageNumber = response.paginationInfo.currentPage;
+      this.shopParams.pageSize = response.paginationInfo.itemsPerPage;
+      this.totalCount = response.paginationInfo.totalItems;
+      console.log(response.paginationInfo.totalPages);
       this.paginationInfo = response.paginationInfo;
     }, error => {
       this.products = []
@@ -41,7 +51,6 @@ export class ShopComponent implements OnInit {
   }
 
   getCategories() {
-
     let category : ICategory = {
       id: 0, 
       name: "All", 
@@ -58,7 +67,6 @@ export class ShopComponent implements OnInit {
   }
 
   getDiscounts(){
-
     let discount : IDiscount = {
         id: 0,
         name: "All",
@@ -76,12 +84,22 @@ export class ShopComponent implements OnInit {
   }
 
   onCategorySelected(categoryId: number) {
-    this.categoryIdSelected = categoryId;
+    this.shopParams.categoryId = categoryId;
     this.getProducts();
   }
 
   onDiscountSelected(discountId: number) {
-    this.discountIdSelected = discountId;
+    this.shopParams.discountId = discountId;
+    this.getProducts();
+  }
+
+  onSortSelected(sort: string){
+    this.shopParams.sort = sort;
+    this.getProducts();
+  }
+
+  onPageChanged(event: any) {
+    this.shopParams.pageNumber = event.page;
     this.getProducts();
   }
 }
