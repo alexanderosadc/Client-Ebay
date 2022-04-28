@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ICategory } from '../shared/models/categories';
 import { IDiscount } from '../shared/models/discount';
 import { IPaginationInfo } from '../shared/models/pagination-info';
@@ -13,6 +13,7 @@ import { ShopService } from './shop.service';
   styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent implements OnInit {
+  @ViewChild('search', {static: true}) searchTerm: ElementRef;
   products: IProduct[];
   paginationInfo: IPaginationInfo;
   categories : ICategory[];
@@ -42,7 +43,6 @@ export class ShopComponent implements OnInit {
       this.shopParams.pageNumber = response.paginationInfo.currentPage;
       this.shopParams.pageSize = response.paginationInfo.itemsPerPage;
       this.totalCount = response.paginationInfo.totalItems;
-      console.log(response.paginationInfo.totalPages);
       this.paginationInfo = response.paginationInfo;
     }, error => {
       this.products = []
@@ -85,11 +85,13 @@ export class ShopComponent implements OnInit {
 
   onCategorySelected(categoryId: number) {
     this.shopParams.categoryId = categoryId;
+    this.shopParams.pageNumber = 1;
     this.getProducts();
   }
 
   onDiscountSelected(discountId: number) {
     this.shopParams.discountId = discountId;
+    this.shopParams.pageNumber = 1;
     this.getProducts();
   }
 
@@ -99,7 +101,22 @@ export class ShopComponent implements OnInit {
   }
 
   onPageChanged(event: any) {
-    this.shopParams.pageNumber = event.page;
+    if(this.shopParams.pageNumber !== event)
+    {
+      this.shopParams.pageNumber = event;
+      this.getProducts();
+    }
+  }
+
+  onSearch(){
+    this.shopParams.search = this.searchTerm.nativeElement.value;
+    this.shopParams.pageNumber = 1;
+    this.getProducts();
+  }
+
+  onReset(){
+    this.searchTerm.nativeElement.value = '';
+    this.shopParams = new ShopParams();
     this.getProducts();
   }
 }
