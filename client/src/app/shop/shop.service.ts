@@ -4,6 +4,7 @@ import { map } from 'rxjs';
 import { ICategory } from '../shared/models/categories';
 import { IDiscount } from '../shared/models/discount';
 import { IPagination } from '../shared/models/pagination';
+import { IProduct } from '../shared/models/product';
 import { ShopParams } from '../shared/models/shopParams';
 
 @Injectable({
@@ -40,6 +41,10 @@ export class ShopService {
           return response.body;
         })
     );
+  }
+
+  getProduct(id: number){
+    return this.http.get<IProduct>(this.baseUrl + 'Products/' + id);
   }
 
   getCategories() {
