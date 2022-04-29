@@ -1,0 +1,7 @@
+<div class="container mt-5">
+    <h4>Internal Server Error</h4>
+    <ng-container *ngIf="error">
+        <h5 class="text-danger">Error: {{error.status}}</h5>
+        <code class="mt-5" style="background-color: whitesmokel;">{{error.title}}</code>
+    </ng-container>
+</div>
